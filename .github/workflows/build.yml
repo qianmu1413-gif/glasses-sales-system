@@ -18,15 +18,15 @@ jobs:
       with:
         node-version: '20'
 
-    - name: 安装Windows构建工具
-      run: |
-        npm install --global windows-build-tools --vs2015
-        npm config set msvs_version 2015
+    - name: 设置Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
 
-    - name: 清理并安装依赖
-      run: |
-        npm cache clean --force
-        npm install --legacy-peer-deps
+    - name: 安装依赖
+      run: npm ci
+      env:
+        npm_config_build_from_source: true
 
     - name: TypeScript编译
       run: npx tsc
