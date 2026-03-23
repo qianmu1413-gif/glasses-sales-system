@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useSalesStore } from '../stores/salesStore'
 import { useFrameStore } from '../stores/frameStore'
 import { useOrderStore } from '../stores/orderStore'
-import { Send, Copy, Sparkles, User, ShoppingBag, Calculator, FileText, Clock, MessageSquare } from 'lucide-react'
+import { Send, Copy, Sparkles, User, ShoppingBag, Calculator, FileText, Clock, MessageSquare, Sidebar } from 'lucide-react'
 import type { CustomerProfile, SalesScript } from '../types/sales'
 import { ScriptTemplateSelector } from '../components/Sales/ScriptTemplateSelector'
 import { FollowUpPanel } from '../components/Sales/FollowUpPanel'
@@ -79,12 +79,34 @@ const SalesWorkbenchPage: React.FC = () => {
     }
   }
 
+  // 开启微信吸附侧边栏
+  const handleOpenSidebar = async () => {
+    try {
+      const result = await window.electronAPI.sidebar.open()
+      if (result.success) {
+        console.log('微信吸附侧边栏已开启')
+      } else {
+        alert('开启失败：' + result.error)
+      }
+    } catch (error) {
+      console.error('开启侧边栏失败:', error)
+      alert('开启失败：' + String(error))
+    }
+  }
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* 左侧：会话列表 */}
       <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto">
         <div className="p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800">顾客会话</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">顾客会话</h2>
+          <button
+            onClick={handleOpenSidebar}
+            className="w-full px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2 text-sm"
+          >
+            <Sidebar className="w-4 h-4" />
+            开启微信吸附
+          </button>
         </div>
         <div className="p-2">
           <div

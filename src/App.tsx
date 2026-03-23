@@ -28,6 +28,7 @@ import SalesWorkbenchPage from './pages/SalesWorkbenchPage'
 import CustomerProfilePage from './pages/CustomerProfilePage'
 import FrameLibraryPage from './pages/FrameLibraryPage'
 import OrderManagementPage from './pages/OrderManagementPage'
+import WeChatSidebarPage from './pages/WeChatSidebarPage'
 
 import { useAppStore } from './stores/appStore'
 import { themes, useThemeStore, type ThemeId, type ThemeMode } from './stores/themeStore'
@@ -736,6 +737,7 @@ function App() {
               <Route path="/customer-profile/:wxid" element={<CustomerProfilePage />} />
               <Route path="/frame-library" element={<FrameLibraryPage />} />
               <Route path="/orders" element={<OrderManagementPage />} />
+              <Route path="/wechat-sidebar" element={<WeChatSidebarPage />} />
               <Route path="/chat-history/:sessionId/:messageId" element={<ChatHistoryPage />} />
               <Route path="/chat-history-inline/:payloadId" element={<ChatHistoryPage />} />
             </Routes>

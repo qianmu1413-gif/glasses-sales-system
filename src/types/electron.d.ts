@@ -870,6 +870,10 @@ export interface ElectronAPI {
     // 报价单
     generateQuotation: (quotationData: any) => Promise<{ success: boolean; filePath?: string; quotation?: any; error?: string }>
   }
+  sidebar: {
+    open: () => Promise<{ success: boolean; error?: string }>
+    close: () => Promise<{ success: boolean; error?: string }>
+  }
 }
 
 export interface ExportOptions {

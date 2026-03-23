@@ -32,6 +32,7 @@ import { destroyNotificationWindow, registerNotificationHandlers, showNotificati
 import { httpService } from './services/httpService'
 import { messagePushService } from './services/messagePushService'
 import { registerSalesIPC } from './services/salesIPC'
+import { createWeChatSidebarWindow, closeSidebarWindow } from './windows/wechatSidebarWindow'
 
 
 // 配置自动更新 - 已禁用
@@ -1284,6 +1285,25 @@ function registerIpcHandlers() {
 
   ipcMain.on('window:close', (event) => {
     BrowserWindow.fromWebContents(event.sender)?.close()
+  })
+
+  // 微信吸附侧边栏
+  ipcMain.handle('sidebar:open', async () => {
+    try {
+      createWeChatSidebarWindow()
+      return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sidebar:close', async () => {
+    try {
+      closeSidebarWindow()
+      return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
   })
 
   ipcMain.handle('window:respondCloseConfirm', async (_event, action: 'tray' | 'quit' | 'cancel') => {

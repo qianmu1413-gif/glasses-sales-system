@@ -455,5 +455,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     // 报价单
     generateQuotation: (quotationData: any) => ipcRenderer.invoke('sales:generate-quotation', quotationData)
+  },
+
+  // 微信吸附侧边栏
+  sidebar: {
+    open: () => ipcRenderer.invoke('sidebar:open'),
+    close: () => ipcRenderer.invoke('sidebar:close')
   }
 })
