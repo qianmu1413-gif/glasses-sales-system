@@ -24,6 +24,10 @@ import ContactsPage from './pages/ContactsPage'
 import ChatHistoryPage from './pages/ChatHistoryPage'
 import NotificationWindow from './pages/NotificationWindow'
 import SalesConfigPage from './pages/SalesConfigPage'
+import SalesWorkbenchPage from './pages/SalesWorkbenchPage'
+import CustomerProfilePage from './pages/CustomerProfilePage'
+import FrameLibraryPage from './pages/FrameLibraryPage'
+import OrderManagementPage from './pages/OrderManagementPage'
 
 import { useAppStore } from './stores/appStore'
 import { themes, useThemeStore, type ThemeId, type ThemeMode } from './stores/themeStore'
@@ -728,6 +732,10 @@ function App() {
               <Route path="/sns" element={<SnsPage />} />
               <Route path="/contacts" element={<ContactsPage />} />
               <Route path="/sales-config" element={<SalesConfigPage />} />
+              <Route path="/sales-workbench" element={<SalesWorkbenchPage />} />
+              <Route path="/customer-profile/:wxid" element={<CustomerProfilePage />} />
+              <Route path="/frame-library" element={<FrameLibraryPage />} />
+              <Route path="/orders" element={<OrderManagementPage />} />
               <Route path="/chat-history/:sessionId/:messageId" element={<ChatHistoryPage />} />
               <Route path="/chat-history-inline/:payloadId" element={<ChatHistoryPage />} />
             </Routes>

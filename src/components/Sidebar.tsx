@@ -431,12 +431,39 @@ function Sidebar({ collapsed }: SidebarProps) {
 
           {/* 眼镜销售系统 */}
           <NavLink
-            to="/sales-config"
-            className={`nav-item ${isActive('/sales-config') ? 'active' : ''}`}
-            title={collapsed ? '眼镜销售' : undefined}
+            to="/sales-workbench"
+            className={`nav-item ${isActive('/sales-workbench') ? 'active' : ''}`}
+            title={collapsed ? '销售工作台' : undefined}
           >
             <span className="nav-icon"><Glasses size={20} /></span>
-            <span className="nav-label">眼镜销售</span>
+            <span className="nav-label">销售工作台</span>
+          </NavLink>
+
+          <NavLink
+            to="/frame-library"
+            className={`nav-item ${isActive('/frame-library') ? 'active' : ''}`}
+            title={collapsed ? '镜框库' : undefined}
+          >
+            <span className="nav-icon"><Aperture size={20} /></span>
+            <span className="nav-label">镜框库</span>
+          </NavLink>
+
+          <NavLink
+            to="/orders"
+            className={`nav-item ${isActive('/orders') ? 'active' : ''}`}
+            title={collapsed ? '订单管理' : undefined}
+          >
+            <span className="nav-icon"><FileText size={20} /></span>
+            <span className="nav-label">订单管理</span>
+          </NavLink>
+
+          <NavLink
+            to="/sales-config"
+            className={`nav-item ${isActive('/sales-config') ? 'active' : ''}`}
+            title={collapsed ? '销售配置' : undefined}
+          >
+            <span className="nav-icon"><Settings size={20} /></span>
+            <span className="nav-label">销售配置</span>
           </NavLink>
 
           {/* 聊天分析 */}
