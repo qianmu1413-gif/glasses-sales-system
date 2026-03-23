@@ -1,0 +1,181 @@
+{
+  "name": "weflow",
+  "version": "2.1.0",
+  "description": "WeFlow",
+  "main": "dist-electron/main.js",
+  "author": {
+    "name": "cc",
+    "email": "yccccccy@proton.me"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hicccc77/WeFlow"
+  },
+  "//": "二改不应改变此处的作者与应用信息",
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+    "rebuild": "electron-rebuild",
+    "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc && vite build && electron-builder",
+    "preview": "vite preview",
+    "electron:dev": "vite --mode electron",
+    "electron:build": "npm run build"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
+    "better-sqlite3": "^12.8.0",
+    "clipboardy": "^5.3.1",
+    "echarts": "^5.5.1",
+    "echarts-for-react": "^3.0.2",
+    "electron-store": "^10.0.0",
+    "electron-updater": "^6.3.9",
+    "exceljs": "^4.4.0",
+    "ffmpeg-static": "^5.3.0",
+    "fzstd": "^0.1.1",
+    "html2canvas": "^1.4.1",
+    "jieba-wasm": "^2.2.0",
+    "jszip": "^3.10.1",
+    "koffi": "^2.9.0",
+    "lucide-react": "^0.562.0",
+    "openai": "^6.32.0",
+    "pdf-parse": "^2.4.5",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.1.1",
+    "react-virtuoso": "^4.18.1",
+    "remark-gfm": "^4.0.1",
+    "sherpa-onnx-node": "^1.10.38",
+    "silk-wasm": "^3.7.1",
+    "sudo-prompt": "^9.2.1",
+    "wechat-emojis": "^1.0.2",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.2",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^39.2.7",
+    "electron-builder": "^25.1.8",
+    "sass": "^1.83.0",
+    "sharp": "^0.34.5",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.5",
+    "vite-plugin-electron": "^0.28.8",
+    "vite-plugin-electron-renderer": "^0.14.6"
+  },
+  "build": {
+    "appId": "com.WeFlow.app",
+    "publish": {
+      "provider": "github",
+      "owner": "hicccc77",
+      "repo": "WeFlow",
+      "releaseType": "release"
+    },
+    "productName": "WeFlow",
+    "artifactName": "${productName}-${version}-Setup.${ext}",
+    "directories": {
+      "output": "release"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.utilities",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "entitlements": "electron/entitlements.mac.plist",
+      "entitlementsInherit": "electron/entitlements.mac.plist",
+      "icon": "resources/icon.icns"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "public/icon.ico"
+    },
+    "linux": {
+      "icon": "public/icon.png",
+      "target": [
+        "appimage",
+        "deb",
+        "tar.gz"
+      ],
+      "category": "Utility",
+      "executableName": "weflow",
+      "synopsis": "WeFlow for Linux"
+    },
+    "nsis": {
+      "oneClick": false,
+      "differentialPackage": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "unicode": true,
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
+      "language": "2052",
+      "displayLanguageSelector": false,
+      "include": "installer.nsh",
+      "installerIcon": "public/icon.ico",
+      "uninstallerIcon": "public/icon.ico",
+      "installerHeaderIcon": "public/icon.ico",
+      "perMachine": false,
+      "allowElevation": true,
+      "installerSidebar": null,
+      "uninstallerSidebar": null
+    },
+    "extraResources": [
+      {
+        "from": "resources/",
+        "to": "resources/"
+      },
+      {
+        "from": "public/icon.ico",
+        "to": "icon.ico"
+      },
+      {
+        "from": "public/icon.png",
+        "to": "icon.png"
+      },
+      {
+        "from": "electron/assets/wasm/",
+        "to": "assets/wasm/"
+      }
+    ],
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/silk-wasm/**/*",
+      "node_modules/sherpa-onnx-node/**/*",
+      "node_modules/sherpa-onnx-*/*",
+      "node_modules/sherpa-onnx-*/**/*",
+      "node_modules/ffmpeg-static/**/*"
+    ],
+    "extraFiles": [
+      {
+        "from": "resources/msvcp140.dll",
+        "to": "."
+      },
+      {
+        "from": "resources/msvcp140_1.dll",
+        "to": "."
+      },
+      {
+        "from": "resources/vcruntime140.dll",
+        "to": "."
+      },
+      {
+        "from": "resources/vcruntime140_1.dll",
+        "to": "."
+      }
+    ],
+    "icon": "resources/icon.icns"
+  }
+}
