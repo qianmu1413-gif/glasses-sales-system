@@ -18,14 +18,15 @@ jobs:
       with:
         node-version: '20'
 
-    - name: 安装Python和构建工具
+    - name: 安装Windows构建工具
       run: |
-        choco install python --version=3.11.0 -y
-        npm install --global node-gyp@latest
-        npm config set msvs_version 2022
+        npm install --global windows-build-tools --vs2015
+        npm config set msvs_version 2015
 
-    - name: 安装依赖
-      run: npm install --force
+    - name: 清理并安装依赖
+      run: |
+        npm cache clean --force
+        npm install --legacy-peer-deps
 
     - name: TypeScript编译
       run: npx tsc
