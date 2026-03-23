@@ -18,8 +18,14 @@ jobs:
       with:
         node-version: '20'
 
+    - name: 安装Python和构建工具
+      run: |
+        choco install python --version=3.11.0 -y
+        npm install --global node-gyp@latest
+        npm config set msvs_version 2022
+
     - name: 安装依赖
-      run: npm install
+      run: npm install --force
 
     - name: TypeScript编译
       run: npx tsc
