@@ -38,6 +38,7 @@
     "jszip": "^3.10.1",
     "koffi": "^2.9.0",
     "lucide-react": "^0.562.0",
+    "node-window-manager": "^2.2.4",
     "openai": "^6.32.0",
     "pdf-parse": "^2.4.5",
     "react": "^19.2.3",
