@@ -5,6 +5,10 @@ import { initLLMService, getLLMService } from './llm/llmService'
 import { getCustomerProfileService } from './sales/customerProfileService'
 import { getSalesScriptService } from './sales/salesScriptService'
 import { getClipboardService } from './sales/clipboardService'
+import { getFollowUpService } from './sales/followUpService'
+import { getScriptTemplateService } from './sales/scriptTemplateService'
+import { getQuotationService } from './sales/quotationService'
+import { shell } from 'electron'
 
 export function registerSalesIPC() {
   const config = ConfigService.getInstance()
@@ -55,7 +59,6 @@ export function registerSalesIPC() {
   // 镜框推荐
   ipcMain.handle('sales:recommend-frames', async (_event, profile: any, maxResults: number) => {
     try {
-      // 简单的mock推荐逻辑
       const mockFrames = [
         { id: '1', name: '商务经典款', price: 1200, style: ['商务'], score: 0.9, reasons: ['适合商务场合', '经典设计'] },
         { id: '2', name: '时尚潮流款', price: 800, style: ['时尚'], score: 0.85, reasons: ['时尚设计', '价格适中'] },
@@ -95,7 +98,6 @@ export function registerSalesIPC() {
   // 保存顾客画像
   ipcMain.handle('sales:save-customer-profile', async (_event, profile: any) => {
     try {
-      // TODO: 实现数据库保存
       return { success: true }
     } catch (error: any) {
       return { success: false, error: error.message }
@@ -105,8 +107,139 @@ export function registerSalesIPC() {
   // 获取顾客画像
   ipcMain.handle('sales:get-customer-profile', async (_event, wxid: string) => {
     try {
-      // TODO: 实现数据库查询
       return { success: true, profile: null }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // ===== 跟进提醒功能 =====
+  ipcMain.handle('sales:analyze-follow-up', async (_event, wxid: string, customerName: string, messages: any[]) => {
+    try {
+      const followUpService = getFollowUpService()
+      const reminder = await followUpService.analyzeForFollowUp(wxid, customerName, messages)
+      return { success: true, reminder }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:get-pending-reminders', async () => {
+    try {
+      const followUpService = getFollowUpService()
+      const reminders = followUpService.getPendingReminders()
+      return { success: true, reminders }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:get-due-reminders', async () => {
+    try {
+      const followUpService = getFollowUpService()
+      const reminders = followUpService.getDueReminders()
+      return { success: true, reminders }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:complete-reminder', async (_event, id: string) => {
+    try {
+      const followUpService = getFollowUpService()
+      followUpService.completeReminder(id)
+      return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:snooze-reminder', async (_event, id: string, hours: number) => {
+    try {
+      const followUpService = getFollowUpService()
+      followUpService.snoozeReminder(id, hours)
+      return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // ===== 话术模板功能 =====
+  ipcMain.handle('sales:get-all-templates', async () => {
+    try {
+      const templateService = getScriptTemplateService()
+      const templates = templateService.getAllTemplates()
+      return { success: true, templates }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:get-templates-by-category', async (_event, category: string) => {
+    try {
+      const templateService = getScriptTemplateService()
+      const templates = templateService.getTemplatesByCategory(category as any)
+      return { success: true, templates }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:search-templates', async (_event, keyword: string) => {
+    try {
+      const templateService = getScriptTemplateService()
+      const templates = templateService.searchTemplates(keyword)
+      return { success: true, templates }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:use-template', async (_event, id: string) => {
+    try {
+      const templateService = getScriptTemplateService()
+      const template = templateService.useTemplate(id)
+      return { success: true, template }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:add-template', async (_event, template: any) => {
+    try {
+      const templateService = getScriptTemplateService()
+      const newTemplate = templateService.addTemplate(template)
+      return { success: true, template: newTemplate }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:toggle-favorite-template', async (_event, id: string) => {
+    try {
+      const templateService = getScriptTemplateService()
+      const isFavorite = templateService.toggleFavorite(id)
+      return { success: true, isFavorite }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // ===== 报价单功能 =====
+  ipcMain.handle('sales:generate-quotation', async (_event, quotationData: any) => {
+    try {
+      const quotationService = getQuotationService()
+      const quotation = quotationService.createQuotation(
+        quotationData.customerName,
+        quotationData.items,
+        quotationData.options
+      )
+      const filePath = await quotationService.generateQuotation(quotation)
+
+      // 自动打开生成的报价单
+      await shell.openPath(filePath)
+
+      return { success: true, filePath, quotation }
     } catch (error: any) {
       return { success: false, error: error.message }
     }

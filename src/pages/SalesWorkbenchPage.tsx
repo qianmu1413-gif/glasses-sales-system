@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { useSalesStore } from '../stores/salesStore'
 import { useFrameStore } from '../stores/frameStore'
 import { useOrderStore } from '../stores/orderStore'
-import { Send, Copy, Sparkles, User, ShoppingBag, Calculator } from 'lucide-react'
+import { Send, Copy, Sparkles, User, ShoppingBag, Calculator, FileText, Clock, MessageSquare } from 'lucide-react'
 import type { CustomerProfile, SalesScript } from '../types/sales'
+import { ScriptTemplateSelector } from '../components/Sales/ScriptTemplateSelector'
+import { FollowUpPanel } from '../components/Sales/FollowUpPanel'
+import { QuotationGenerator } from '../components/Sales/QuotationGenerator'
 
 const SalesWorkbenchPage: React.FC = () => {
   const [selectedWxid, setSelectedWxid] = useState<string>('')
   const [inputMessage, setInputMessage] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
+  const [activePanel, setActivePanel] = useState<'assistant' | 'templates' | 'followup' | 'quotation'>('assistant')
 
   const {
     currentProfile,
@@ -153,13 +157,51 @@ const SalesWorkbenchPage: React.FC = () => {
       {/* 右侧：AI助手面板 */}
       <div className="w-96 bg-white border-l border-gray-200 overflow-y-auto">
         <div className="p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-yellow-500" />
-            AI销售助手
-          </h2>
+          <div className="flex items-center gap-2 mb-3">
+            <button
+              onClick={() => setActivePanel('assistant')}
+              className={`flex-1 px-3 py-2 text-sm rounded flex items-center justify-center gap-1 ${
+                activePanel === 'assistant' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <Sparkles className="w-4 h-4" />
+              AI助手
+            </button>
+            <button
+              onClick={() => setActivePanel('templates')}
+              className={`flex-1 px-3 py-2 text-sm rounded flex items-center justify-center gap-1 ${
+                activePanel === 'templates' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              模板
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActivePanel('followup')}
+              className={`flex-1 px-3 py-2 text-sm rounded flex items-center justify-center gap-1 ${
+                activePanel === 'followup' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              跟进
+            </button>
+            <button
+              onClick={() => setActivePanel('quotation')}
+              className={`flex-1 px-3 py-2 text-sm rounded flex items-center justify-center gap-1 ${
+                activePanel === 'quotation' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              报价
+            </button>
+          </div>
         </div>
 
-        <div className="p-4 space-y-6">
+        <div className="p-4">
+          {activePanel === 'assistant' && (
+            <div className="space-y-6">
           {/* 顾客画像 */}
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">
@@ -290,6 +332,27 @@ const SalesWorkbenchPage: React.FC = () => {
               打开价格计算器
             </button>
           </div>
+        </div>
+      )}
+
+      {activePanel === 'templates' && (
+        <ScriptTemplateSelector
+          onSelectTemplate={(content) => {
+            setInputMessage(content)
+          }}
+        />
+      )}
+
+      {activePanel === 'followup' && <FollowUpPanel />}
+
+      {activePanel === 'quotation' && (
+        <QuotationGenerator
+          customerName={currentProfile?.name}
+          onGenerated={(filePath) => {
+            console.log('报价单已生成:', filePath)
+          }}
+        />
+      )}
         </div>
       </div>
     </div>

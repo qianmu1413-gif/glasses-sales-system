@@ -436,6 +436,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
     recommendFrames: (profile: any, maxResults: number) => ipcRenderer.invoke('sales:recommend-frames', profile, maxResults),
     calculatePrice: (framePrice: number, lensPrice: number, discountPercent: number) => ipcRenderer.invoke('sales:calculate-price', framePrice, lensPrice, discountPercent),
     saveCustomerProfile: (profile: any) => ipcRenderer.invoke('sales:save-customer-profile', profile),
-    getCustomerProfile: (wxid: string) => ipcRenderer.invoke('sales:get-customer-profile', wxid)
+    getCustomerProfile: (wxid: string) => ipcRenderer.invoke('sales:get-customer-profile', wxid),
+
+    // 跟进提醒
+    analyzeFollowUp: (wxid: string, customerName: string, messages: any[]) => ipcRenderer.invoke('sales:analyze-follow-up', wxid, customerName, messages),
+    getPendingReminders: () => ipcRenderer.invoke('sales:get-pending-reminders'),
+    getDueReminders: () => ipcRenderer.invoke('sales:get-due-reminders'),
+    completeReminder: (id: string) => ipcRenderer.invoke('sales:complete-reminder', id),
+    snoozeReminder: (id: string, hours: number) => ipcRenderer.invoke('sales:snooze-reminder', id, hours),
+
+    // 话术模板
+    getAllTemplates: () => ipcRenderer.invoke('sales:get-all-templates'),
+    getTemplatesByCategory: (category: string) => ipcRenderer.invoke('sales:get-templates-by-category', category),
+    searchTemplates: (keyword: string) => ipcRenderer.invoke('sales:search-templates', keyword),
+    useTemplate: (id: string) => ipcRenderer.invoke('sales:use-template', id),
+    addTemplate: (template: any) => ipcRenderer.invoke('sales:add-template', template),
+    toggleFavoriteTemplate: (id: string) => ipcRenderer.invoke('sales:toggle-favorite-template', id),
+
+    // 报价单
+    generateQuotation: (quotationData: any) => ipcRenderer.invoke('sales:generate-quotation', quotationData)
   }
 })

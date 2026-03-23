@@ -851,6 +851,24 @@ export interface ElectronAPI {
     calculatePrice: (framePrice: number, lensPrice: number, discountPercent: number) => Promise<{ success: boolean; calculation?: any; error?: string }>
     saveCustomerProfile: (profile: any) => Promise<{ success: boolean; error?: string }>
     getCustomerProfile: (wxid: string) => Promise<{ success: boolean; profile?: any; error?: string }>
+
+    // 跟进提醒
+    analyzeFollowUp: (wxid: string, customerName: string, messages: any[]) => Promise<{ success: boolean; reminder?: any; error?: string }>
+    getPendingReminders: () => Promise<{ success: boolean; reminders?: any[]; error?: string }>
+    getDueReminders: () => Promise<{ success: boolean; reminders?: any[]; error?: string }>
+    completeReminder: (id: string) => Promise<{ success: boolean; error?: string }>
+    snoozeReminder: (id: string, hours: number) => Promise<{ success: boolean; error?: string }>
+
+    // 话术模板
+    getAllTemplates: () => Promise<{ success: boolean; templates?: any[]; error?: string }>
+    getTemplatesByCategory: (category: string) => Promise<{ success: boolean; templates?: any[]; error?: string }>
+    searchTemplates: (keyword: string) => Promise<{ success: boolean; templates?: any[]; error?: string }>
+    useTemplate: (id: string) => Promise<{ success: boolean; template?: any; error?: string }>
+    addTemplate: (template: any) => Promise<{ success: boolean; template?: any; error?: string }>
+    toggleFavoriteTemplate: (id: string) => Promise<{ success: boolean; isFavorite?: boolean; error?: string }>
+
+    // 报价单
+    generateQuotation: (quotationData: any) => Promise<{ success: boolean; filePath?: string; quotation?: any; error?: string }>
   }
 }
 
