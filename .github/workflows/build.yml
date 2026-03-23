@@ -18,13 +18,19 @@ jobs:
       with:
         node-version: '20'
 
+    - name: 设置Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
     - name: 添加msbuild到PATH
       uses: microsoft/setup-msbuild@v1.1
 
     - name: 安装依赖
-      run: |
-        npm install --ignore-scripts
-        npm rebuild --build-from-source
+      run: npm install
+
+    - name: 重新编译原生模块
+      run: npx electron-rebuild -f -w better-sqlite3,node-window-manager,extract-file-icon
 
     - name: TypeScript编译
       run: npx tsc
