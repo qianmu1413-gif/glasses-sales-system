@@ -51,8 +51,8 @@ const FrameLibraryPage: React.FC = () => {
           {/* 筛选条件 */}
           <div className="mt-4 flex gap-4">
             <select
-              value={filter.style || ''}
-              onChange={(e) => handleFilterChange('style', e.target.value || undefined)}
+              value={filter.styles?.[0] || ''}
+              onChange={(e) => handleFilterChange('styles', e.target.value ? [e.target.value] : undefined)}
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
             >
               <option value="">全部风格</option>
@@ -63,15 +63,15 @@ const FrameLibraryPage: React.FC = () => {
             </select>
 
             <select
-              value={filter.material || ''}
-              onChange={(e) => handleFilterChange('material', e.target.value || undefined)}
+              value={filter.brands?.[0] || ''}
+              onChange={(e) => handleFilterChange('brands', e.target.value ? [e.target.value] : undefined)}
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
             >
-              <option value="">全部材质</option>
-              <option value="钛合金">钛合金</option>
-              <option value="板材">板材</option>
-              <option value="金属">金属</option>
-              <option value="TR90">TR90</option>
+              <option value="">全部品牌</option>
+              <option value="雷朋">雷朋</option>
+              <option value="暴龙">暴龙</option>
+              <option value="派丽蒙">派丽蒙</option>
+              <option value="木九十">木九十</option>
             </select>
 
             <div className="flex items-center gap-2">
@@ -118,9 +118,9 @@ const FrameLibraryPage: React.FC = () => {
               <div key={frame.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
                 {/* 镜框图片 */}
                 <div className="aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
-                  {frame.imageUrl ? (
+                  {frame.imagePath ? (
                     <img
-                      src={frame.imageUrl}
+                      src={frame.imagePath}
                       alt={frame.name}
                       className="w-full h-full object-cover"
                     />
@@ -137,9 +137,11 @@ const FrameLibraryPage: React.FC = () => {
                   <p className="text-sm text-gray-500 mb-2">{frame.model}</p>
 
                   <div className="flex flex-wrap gap-1 mb-3">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
-                      {frame.style}
-                    </span>
+                    {frame.style.map((s: string, idx: number) => (
+                      <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                        {s}
+                      </span>
+                    ))}
                     <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
                       {frame.material}
                     </span>

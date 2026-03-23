@@ -231,10 +231,10 @@ const OrderManagementPage: React.FC = () => {
                   </div>
 
                   <div className="ml-8 space-y-1 text-sm text-gray-600">
-                    <div>镜框: {order.frameName} - ¥{order.framePrice}</div>
-                    <div>镜片: {order.lensType} - ¥{order.lensPrice}</div>
+                    <div>镜框: {order.frameName} - ¥{order.pricing.framePrice}</div>
+                    <div>镜片: {order.lensOption.type} - ¥{order.pricing.lensPrice}</div>
                     <div className="font-semibold text-gray-800">
-                      总价: ¥{order.totalPrice}
+                      总价: ¥{order.pricing.total}
                     </div>
                     <div className="text-xs text-gray-500">
                       创建时间: {new Date(order.createdAt).toLocaleString('zh-CN')}

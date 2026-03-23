@@ -66,7 +66,7 @@ const SalesWorkbenchPage: React.FC = () => {
 
     try {
       await recommendFrames({
-        faceShape: currentProfile.faceShape,
+        faceShapes: currentProfile.faceShape ? [currentProfile.faceShape] : undefined,
         styles: currentProfile.preferences.style,
         priceRange: currentProfile.preferences.priceRange
       })
@@ -268,7 +268,7 @@ const SalesWorkbenchPage: React.FC = () => {
                   <div key={rec.frame.id} className="p-2 bg-white rounded-lg border border-gray-200">
                     <div className="font-medium text-sm text-gray-800">{rec.frame.name}</div>
                     <div className="text-xs text-gray-600">¥{rec.frame.price}</div>
-                    <div className="text-xs text-gray-500 mt-1">{rec.reason}</div>
+                    <div className="text-xs text-gray-500 mt-1">{rec.reasons.join('、')}</div>
                   </div>
                 ))}
               </div>

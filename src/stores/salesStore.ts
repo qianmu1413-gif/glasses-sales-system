@@ -93,7 +93,8 @@ export const useSalesStore = create<SalesState>((set) => ({
           brands: []
         },
         lastAnalyzedAt: new Date(),
-        confidence: 0.8
+        confidence: 0.8,
+        analysisSource: '基于最近10条对话分析'
       }
       set({ currentProfile: mockProfile })
     } catch (error) {

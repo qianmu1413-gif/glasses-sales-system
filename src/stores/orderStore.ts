@@ -89,9 +89,14 @@ export const useOrderStore = create<OrderState>((set) => ({
         priceCalculation: {
           framePrice: params.framePrice,
           lensPrice: params.lensPrice,
+          addonsPrice: 0,
           subtotal,
           discount,
-          total
+          total,
+          breakdown: [
+            { item: '镜框', price: params.framePrice },
+            { item: '镜片', price: params.lensPrice }
+          ]
         }
       })
     } catch (error) {
