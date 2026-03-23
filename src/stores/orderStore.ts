@@ -78,27 +78,17 @@ export const useOrderStore = create<OrderState>((set) => ({
   calculatePrice: async (params: { framePrice: number; lensPrice: number; discountPercent: number }) => {
     set({ isLoading: true, error: null })
     try {
-      // TODO: 调用IPC计算价格
-      // const calculation = await window.electronAPI.pricing.calculate(params)
-      // set({ priceCalculation: calculation })
-      const subtotal = params.framePrice + params.lensPrice
-      const discount = subtotal * (params.discountPercent / 100)
-      const total = subtotal - discount
+      const result = await window.electronAPI.sales.calculatePrice(
+        params.framePrice,
+        params.lensPrice,
+        params.discountPercent
+      )
 
-      set({
-        priceCalculation: {
-          framePrice: params.framePrice,
-          lensPrice: params.lensPrice,
-          addonsPrice: 0,
-          subtotal,
-          discount,
-          total,
-          breakdown: [
-            { item: '镜框', price: params.framePrice },
-            { item: '镜片', price: params.lensPrice }
-          ]
-        }
-      })
+      if (result.success && result.calculation) {
+        set({ priceCalculation: result.calculation })
+      } else {
+        throw new Error(result.error || '计算失败')
+      }
     } catch (error) {
       set({ error: String(error) })
     } finally {

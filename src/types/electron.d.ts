@@ -842,6 +842,16 @@ export interface ElectronAPI {
     stop: () => Promise<{ success: boolean }>
     status: () => Promise<{ running: boolean; port: number; mediaExportPath: string }>
   }
+  sales: {
+    initLLM: () => Promise<{ success: boolean; error?: string }>
+    analyzeCustomer: (wxid: string, messages: any[]) => Promise<{ success: boolean; profile?: any; error?: string }>
+    generateScript: (profile: any, scenario: string, context: any) => Promise<{ success: boolean; script?: any; error?: string }>
+    copyToClipboard: (text: string) => Promise<{ success: boolean; error?: string }>
+    recommendFrames: (profile: any, maxResults: number) => Promise<{ success: boolean; recommendations?: any[]; error?: string }>
+    calculatePrice: (framePrice: number, lensPrice: number, discountPercent: number) => Promise<{ success: boolean; calculation?: any; error?: string }>
+    saveCustomerProfile: (profile: any) => Promise<{ success: boolean; error?: string }>
+    getCustomerProfile: (wxid: string) => Promise<{ success: boolean; profile?: any; error?: string }>
+  }
 }
 
 export interface ExportOptions {

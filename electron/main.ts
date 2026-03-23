@@ -26,6 +26,7 @@ import { contactExportService } from './services/contactExportService'
 import { windowsHelloService } from './services/windowsHelloService'
 import { exportCardDiagnosticsService } from './services/exportCardDiagnosticsService'
 import { cloudControlService } from './services/cloudControlService'
+import { enableWindowSnap } from './utils/windowSnap'
 
 import { destroyNotificationWindow, registerNotificationHandlers, showNotification } from './windows/notificationWindow'
 import { httpService } from './services/httpService'
@@ -33,14 +34,11 @@ import { messagePushService } from './services/messagePushService'
 import { registerSalesIPC } from './services/salesIPC'
 
 
-// 配置自动更新
+// 配置自动更新 - 已禁用
 autoUpdater.autoDownload = false
-autoUpdater.autoInstallOnAppQuit = true
+autoUpdater.autoInstallOnAppQuit = false
 autoUpdater.disableDifferentialDownload = true  // 禁用差分更新，强制全量下载
-const AUTO_UPDATE_ENABLED =
-  process.env.AUTO_UPDATE_ENABLED === 'true' ||
-  process.env.AUTO_UPDATE_ENABLED === '1' ||
-  (process.env.AUTO_UPDATE_ENABLED == null && !process.env.VITE_DEV_SERVER_URL)
+const AUTO_UPDATE_ENABLED = false  // 强制禁用自动更新
 
 // 使用白名单过滤 PATH，避免被第三方目录中的旧版 VC++ 运行库劫持。
 // 仅保留系统目录（Windows/System32/SysWOW64）和应用自身目录（可执行目录、resources）。
@@ -380,6 +378,9 @@ function createWindow(options: { autoShow?: boolean } = {}) {
     show: false
   })
   setupCustomTitleBarWindow(win)
+
+  // 启用窗口吸附功能
+  enableWindowSnap(win)
 
   // 窗口准备好后显示
   // Splash 模式下不在这里 show，由启动流程统一控制
@@ -2806,8 +2807,8 @@ app.whenReady().then(async () => {
     mainWindow?.show()
   }
 
-  // 启动时检测更新（不阻塞启动）
-  checkForUpdatesOnStartup()
+  // 启动时检测更新（不阻塞启动）- 已禁用
+  // checkForUpdatesOnStartup()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

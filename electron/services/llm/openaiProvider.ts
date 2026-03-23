@@ -1,79 +1,46 @@
-// OpenAI Provider 实现
-import OpenAI from 'openai'
-import type { LLMConfig, LLMResponse } from '../../../src/types/sales'
+// OpenAI Provider实现
+import type { LLMProvider, LLMMessage, LLMResponse } from './llmService'
 
-export class OpenAIProvider {
-  private client: OpenAI
+export class OpenAIProvider implements LLMProvider {
+  private apiKey: string
   private model: string
-  private temperature: number
-  private maxTokens: number
+  private baseURL: string
 
-  constructor(config: LLMConfig) {
-    this.client = new OpenAI({
-      apiKey: config.apiKey
+  constructor(apiKey: string, model: string = 'gpt-4') {
+    this.apiKey = apiKey
+    this.model = model
+    this.baseURL = 'https://api.openai.com/v1'
+  }
+
+  async chat(messages: LLMMessage[], options?: { temperature?: number; maxTokens?: number }): Promise<LLMResponse> {
+    const response = await fetch(`${this.baseURL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`
+      },
+      body: JSON.stringify({
+        model: this.model,
+        messages: messages,
+        temperature: options?.temperature ?? 0.7,
+        max_tokens: options?.maxTokens ?? 2000
+      })
     })
-    this.model = config.model || 'gpt-4-turbo-preview'
-    this.temperature = config.temperature ?? 0.7
-    this.maxTokens = config.maxTokens ?? 2000
-  }
 
-  async chat(prompt: string): Promise<LLMResponse> {
-    try {
-      const completion = await this.client.chat.completions.create({
-        model: this.model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: this.temperature,
-        max_tokens: this.maxTokens
-      })
-
-      const content = completion.choices[0]?.message?.content || ''
-      const usage = completion.usage
-
-      return {
-        content,
-        usage: usage ? {
-          promptTokens: usage.prompt_tokens,
-          completionTokens: usage.completion_tokens,
-          totalTokens: usage.total_tokens
-        } : undefined,
-        cost: this.calculateCost(usage?.prompt_tokens || 0, usage?.completion_tokens || 0)
-      }
-    } catch (error) {
-      throw new Error(`OpenAI API error: ${error instanceof Error ? error.message : String(error)}`)
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: { message: response.statusText } }))
+      throw new Error(`OpenAI API错误: ${error.error?.message || response.statusText}`)
     }
-  }
 
-  async chatStream(prompt: string, onChunk: (chunk: string) => void): Promise<LLMResponse> {
-    try {
-      const stream = await this.client.chat.completions.create({
-        model: this.model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: this.temperature,
-        max_tokens: this.maxTokens,
-        stream: true
-      })
+    const data = await response.json()
 
-      let fullContent = ''
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || ''
-        if (content) {
-          fullContent += content
-          onChunk(content)
-        }
+    return {
+      content: data.choices[0]?.message?.content || '',
+      usage: {
+        promptTokens: data.usage?.prompt_tokens || 0,
+        completionTokens: data.usage?.completion_tokens || 0,
+        totalTokens: data.usage?.total_tokens || 0
       }
-
-      return {
-        content: fullContent
-      }
-    } catch (error) {
-      throw new Error(`OpenAI API error: ${error instanceof Error ? error.message : String(error)}`)
     }
-  }
-
-  private calculateCost(promptTokens: number, completionTokens: number): number {
-    // GPT-4 Turbo 价格 (2026年3月估算)
-    const promptCost = (promptTokens / 1000) * 0.01  // $0.01 per 1K tokens
-    const completionCost = (completionTokens / 1000) * 0.03  // $0.03 per 1K tokens
-    return promptCost + completionCost
   }
 }

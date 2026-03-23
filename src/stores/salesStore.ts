@@ -78,25 +78,20 @@ export const useSalesStore = create<SalesState>((set) => ({
   analyzeCustomer: async (wxid: string) => {
     set({ isAnalyzing: true, error: null })
     try {
-      // TODO: 调用IPC分析顾客
-      // const profile = await window.electronAPI.sales.analyzeCustomer(wxid)
-      // set({ currentProfile: profile })
-      const mockProfile: CustomerProfile = {
-        wxid,
-        name: '演示顾客',
-        ageRange: '26-35',
-        personality: ['理性', '注重品质'],
-        purchasePower: 'medium',
-        preferences: {
-          style: ['商务', '时尚'],
-          priceRange: [500, 2000],
-          brands: []
-        },
-        lastAnalyzedAt: new Date(),
-        confidence: 0.8,
-        analysisSource: '基于最近10条对话分析'
+      // 获取聊天记录（这里使用mock数据，实际应该从微信数据库读取）
+      const mockMessages = [
+        { sender: '顾客', content: '你好，我想配一副眼镜', time: new Date() },
+        { sender: '销售', content: '您好！请问您平时主要用于什么场合呢？', time: new Date() },
+        { sender: '顾客', content: '主要是上班用，我在公司做管理工作', time: new Date() },
+        { sender: '顾客', content: '预算在1000-2000左右吧', time: new Date() }
+      ]
+
+      const result = await window.electronAPI.sales.analyzeCustomer(wxid, mockMessages)
+      if (result.success && result.profile) {
+        set({ currentProfile: result.profile })
+      } else {
+        throw new Error(result.error || '分析失败')
       }
-      set({ currentProfile: mockProfile })
     } catch (error) {
       set({ error: String(error) })
     } finally {
@@ -107,16 +102,17 @@ export const useSalesStore = create<SalesState>((set) => ({
   generateScript: async (wxid: string, scenario: string, context: ConversationContext | null) => {
     set({ isGeneratingScript: true, error: null })
     try {
-      // TODO: 调用IPC生成话术
-      // const script = await window.electronAPI.sales.generateScript(wxid, scenario, context)
-      // set({ currentScript: script })
-      const mockScript: SalesScript = {
-        content: '您好！看您的气质，应该是从事商务工作的吧？我们这边有几款非常适合商务人士的镜框，既专业又时尚。',
-        scenario: scenario as any,
-        confidence: 0.85,
-        generatedAt: new Date()
+      const profile = useSalesStore.getState().currentProfile
+      if (!profile) {
+        throw new Error('请先分析顾客画像')
       }
-      set({ currentScript: mockScript })
+
+      const result = await window.electronAPI.sales.generateScript(profile, scenario, context || {})
+      if (result.success && result.script) {
+        set({ currentScript: result.script })
+      } else {
+        throw new Error(result.error || '生成话术失败')
+      }
     } catch (error) {
       set({ error: String(error) })
     } finally {

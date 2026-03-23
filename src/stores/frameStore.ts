@@ -90,10 +90,20 @@ export const useFrameStore = create<FrameState>((set) => ({
   recommendFrames: async (filter: FrameFilter) => {
     set({ isLoading: true, error: null })
     try {
-      // TODO: 调用IPC推荐镜框
-      // const recommendations = await window.electronAPI.frames.recommend(filter)
-      // set({ recommendations })
-      set({ recommendations: [] })
+      const profile = {
+        preferences: {
+          style: filter.styles || [],
+          priceRange: filter.priceRange || [0, 10000]
+        },
+        faceShape: filter.faceShapes?.[0]
+      }
+
+      const result = await window.electronAPI.sales.recommendFrames(profile, 10)
+      if (result.success && result.recommendations) {
+        set({ recommendations: result.recommendations })
+      } else {
+        throw new Error(result.error || '推荐失败')
+      }
     } catch (error) {
       set({ error: String(error) })
     } finally {

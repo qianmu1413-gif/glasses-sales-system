@@ -1,77 +1,73 @@
-// LLM 统一服务接口
-import { OpenAIProvider } from './openaiProvider'
-import { ClaudeProvider } from './claudeProvider'
-import type { LLMConfig, LLMResponse } from '../../../src/types/sales'
+// LLM统一服务接口
+import { ConfigService } from '../config'
 
-type LLMProvider = OpenAIProvider | ClaudeProvider
+export interface LLMMessage {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
 
-export class LLMService {
-  private provider: LLMProvider
-  private config: LLMConfig
+export interface LLMResponse {
+  content: string
+  usage?: {
+    promptTokens: number
+    completionTokens: number
+    totalTokens: number
+  }
+}
 
-  constructor(config: LLMConfig) {
-    this.config = config
-    this.provider = this.createProvider(config)
+export interface LLMProvider {
+  chat(messages: LLMMessage[], options?: { temperature?: number; maxTokens?: number }): Promise<LLMResponse>
+}
+
+class LLMService {
+  private provider: LLMProvider | null = null
+  private config: ConfigService
+
+  constructor() {
+    this.config = ConfigService.getInstance()
   }
 
-  private createProvider(config: LLMConfig): LLMProvider {
-    switch (config.provider) {
-      case 'openai':
-        return new OpenAIProvider(config)
-      case 'claude':
-        return new ClaudeProvider(config)
-      default:
-        throw new Error(`Unsupported LLM provider: ${config.provider}`)
+  async initialize(): Promise<void> {
+    const providerType = this.config.get('llmProvider') || 'openai'
+    const apiKey = providerType === 'openai'
+      ? this.config.get('openaiApiKey')
+      : this.config.get('claudeApiKey')
+
+    if (!apiKey) {
+      throw new Error(`请先配置${providerType === 'openai' ? 'OpenAI' : 'Claude'} API Key`)
+    }
+
+    if (providerType === 'openai') {
+      const { OpenAIProvider } = await import('./openaiProvider')
+      this.provider = new OpenAIProvider(apiKey, this.config.get('openaiModel') || 'gpt-4')
+    } else {
+      const { ClaudeProvider } = await import('./claudeProvider')
+      this.provider = new ClaudeProvider(apiKey, this.config.get('claudeModel') || 'claude-3-5-sonnet-20241022')
     }
   }
 
-  /**
-   * 发送聊天请求
-   */
-  async chat(prompt: string): Promise<LLMResponse> {
-    return this.provider.chat(prompt)
+  async chat(messages: LLMMessage[], options?: { temperature?: number; maxTokens?: number }): Promise<LLMResponse> {
+    if (!this.provider) {
+      await this.initialize()
+    }
+    return this.provider!.chat(messages, options)
   }
 
-  /**
-   * 发送流式聊天请求
-   */
-  async chatStream(prompt: string, onChunk: (chunk: string) => void): Promise<LLMResponse> {
-    return this.provider.chatStream(prompt, onChunk)
-  }
-
-  /**
-   * 切换Provider
-   */
-  switchProvider(config: LLMConfig): void {
-    this.config = config
-    this.provider = this.createProvider(config)
-  }
-
-  /**
-   * 获取当前配置
-   */
-  getConfig(): LLMConfig {
-    return { ...this.config }
+  isInitialized(): boolean {
+    return this.provider !== null
   }
 }
 
-// 单例实例
 let llmServiceInstance: LLMService | null = null
 
-/**
- * 初始化LLM服务
- */
-export function initLLMService(config: LLMConfig): LLMService {
-  llmServiceInstance = new LLMService(config)
+export function getLLMService(): LLMService {
+  if (!llmServiceInstance) {
+    llmServiceInstance = new LLMService()
+  }
   return llmServiceInstance
 }
 
-/**
- * 获取LLM服务实例
- */
-export function getLLMService(): LLMService {
-  if (!llmServiceInstance) {
-    throw new Error('LLM Service not initialized. Call initLLMService first.')
-  }
-  return llmServiceInstance
+export async function initLLMService(): Promise<void> {
+  const service = getLLMService()
+  await service.initialize()
 }

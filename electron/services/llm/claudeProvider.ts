@@ -1,79 +1,52 @@
-// Claude Provider 实现
-import Anthropic from '@anthropic-ai/sdk'
-import type { LLMConfig, LLMResponse } from '../../../src/types/sales'
+// Claude Provider实现
+import type { LLMProvider, LLMMessage, LLMResponse } from './llmService'
 
-export class ClaudeProvider {
-  private client: Anthropic
+export class ClaudeProvider implements LLMProvider {
+  private apiKey: string
   private model: string
-  private temperature: number
-  private maxTokens: number
+  private baseURL: string
 
-  constructor(config: LLMConfig) {
-    this.client = new Anthropic({
-      apiKey: config.apiKey
+  constructor(apiKey: string, model: string = 'claude-3-5-sonnet-20241022') {
+    this.apiKey = apiKey
+    this.model = model
+    this.baseURL = 'https://api.anthropic.com/v1'
+  }
+
+  async chat(messages: LLMMessage[], options?: { temperature?: number; maxTokens?: number }): Promise<LLMResponse> {
+    // 提取system消息
+    const systemMessage = messages.find(m => m.role === 'system')?.content || ''
+    const chatMessages = messages.filter(m => m.role !== 'system')
+
+    const response = await fetch(`${this.baseURL}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': this.apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: this.model,
+        system: systemMessage,
+        messages: chatMessages,
+        temperature: options?.temperature ?? 0.7,
+        max_tokens: options?.maxTokens ?? 2000
+      })
     })
-    this.model = config.model || 'claude-3-5-sonnet-20241022'
-    this.temperature = config.temperature ?? 0.7
-    this.maxTokens = config.maxTokens ?? 2000
-  }
 
-  async chat(prompt: string): Promise<LLMResponse> {
-    try {
-      const message = await this.client.messages.create({
-        model: this.model,
-        max_tokens: this.maxTokens,
-        temperature: this.temperature,
-        messages: [{ role: 'user', content: prompt }]
-      })
-
-      const content = message.content[0]?.type === 'text' ? message.content[0].text : ''
-      const usage = message.usage
-
-      return {
-        content,
-        usage: usage ? {
-          promptTokens: usage.input_tokens,
-          completionTokens: usage.output_tokens,
-          totalTokens: usage.input_tokens + usage.output_tokens
-        } : undefined,
-        cost: this.calculateCost(usage?.input_tokens || 0, usage?.output_tokens || 0)
-      }
-    } catch (error) {
-      throw new Error(`Claude API error: ${error instanceof Error ? error.message : String(error)}`)
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: { message: response.statusText } }))
+      throw new Error(`Claude API错误: ${error.error?.message || response.statusText}`)
     }
-  }
 
-  async chatStream(prompt: string, onChunk: (chunk: string) => void): Promise<LLMResponse> {
-    try {
-      const stream = await this.client.messages.create({
-        model: this.model,
-        max_tokens: this.maxTokens,
-        temperature: this.temperature,
-        messages: [{ role: 'user', content: prompt }],
-        stream: true
-      })
+    const data = await response.json()
 
-      let fullContent = ''
-      for await (const event of stream) {
-        if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-          const content = event.delta.text
-          fullContent += content
-          onChunk(content)
-        }
+    return {
+      content: data.content[0]?.text || '',
+      usage: {
+        promptTokens: data.usage?.input_tokens || 0,
+        completionTokens: data.usage?.output_tokens || 0,
+        totalTokens: (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0)
       }
-
-      return {
-        content: fullContent
-      }
-    } catch (error) {
-      throw new Error(`Claude API error: ${error instanceof Error ? error.message : String(error)}`)
     }
-  }
-
-  private calculateCost(inputTokens: number, outputTokens: number): number {
-    // Claude 3.5 Sonnet 价格 (2026年3月估算)
-    const inputCost = (inputTokens / 1000000) * 3  // $3 per 1M tokens
-    const outputCost = (outputTokens / 1000000) * 15  // $15 per 1M tokens
-    return inputCost + outputCost
   }
 }

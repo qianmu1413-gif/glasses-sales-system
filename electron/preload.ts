@@ -425,5 +425,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
     start: (port?: number) => ipcRenderer.invoke('http:start', port),
     stop: () => ipcRenderer.invoke('http:stop'),
     status: () => ipcRenderer.invoke('http:status')
+  },
+
+  // 销售系统
+  sales: {
+    initLLM: () => ipcRenderer.invoke('sales:init-llm'),
+    analyzeCustomer: (wxid: string, messages: any[]) => ipcRenderer.invoke('sales:analyze-customer', wxid, messages),
+    generateScript: (profile: any, scenario: string, context: any) => ipcRenderer.invoke('sales:generate-script', profile, scenario, context),
+    copyToClipboard: (text: string) => ipcRenderer.invoke('sales:copy-to-clipboard', text),
+    recommendFrames: (profile: any, maxResults: number) => ipcRenderer.invoke('sales:recommend-frames', profile, maxResults),
+    calculatePrice: (framePrice: number, lensPrice: number, discountPercent: number) => ipcRenderer.invoke('sales:calculate-price', framePrice, lensPrice, discountPercent),
+    saveCustomerProfile: (profile: any) => ipcRenderer.invoke('sales:save-customer-profile', profile),
+    getCustomerProfile: (wxid: string) => ipcRenderer.invoke('sales:get-customer-profile', wxid)
   }
 })
