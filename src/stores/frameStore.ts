@@ -30,6 +30,11 @@ interface FrameState {
   // 错误信息
   error: string | null
   setError: (error: string | null) => void
+
+  // 方法
+  loadFrames: () => Promise<void>
+  searchFrames: (query: string) => Promise<void>
+  recommendFrames: (filter: FrameFilter) => Promise<void>
 }
 
 export const useFrameStore = create<FrameState>((set) => ({
@@ -52,5 +57,47 @@ export const useFrameStore = create<FrameState>((set) => ({
   setIsLoading: (loading) => set({ isLoading: loading }),
 
   error: null,
-  setError: (error) => set({ error: error })
+  setError: (error) => set({ error: error }),
+
+  loadFrames: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      // TODO: 调用IPC获取镜框列表
+      // const frames = await window.electronAPI.frames.getAll()
+      // set({ frames })
+      set({ frames: [] })
+    } catch (error) {
+      set({ error: String(error) })
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+  searchFrames: async (query: string) => {
+    set({ isLoading: true, error: null, searchQuery: query })
+    try {
+      // TODO: 调用IPC搜索镜框
+      // const frames = await window.electronAPI.frames.search(query)
+      // set({ frames })
+      set({ frames: [] })
+    } catch (error) {
+      set({ error: String(error) })
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+  recommendFrames: async (filter: FrameFilter) => {
+    set({ isLoading: true, error: null })
+    try {
+      // TODO: 调用IPC推荐镜框
+      // const recommendations = await window.electronAPI.frames.recommend(filter)
+      // set({ recommendations })
+      set({ recommendations: [] })
+    } catch (error) {
+      set({ error: String(error) })
+    } finally {
+      set({ isLoading: false })
+    }
+  }
 }))

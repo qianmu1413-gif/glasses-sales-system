@@ -28,6 +28,10 @@ interface OrderState {
   // 错误信息
   error: string | null
   setError: (error: string | null) => void
+
+  // 方法
+  loadOrders: () => Promise<void>
+  calculatePrice: (params: { framePrice: number; lensPrice: number; discountPercent: number }) => Promise<void>
 }
 
 export const useOrderStore = create<OrderState>((set) => ({
@@ -55,5 +59,45 @@ export const useOrderStore = create<OrderState>((set) => ({
   setIsLoading: (loading) => set({ isLoading: loading }),
 
   error: null,
-  setError: (error) => set({ error: error })
+  setError: (error) => set({ error: error }),
+
+  loadOrders: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      // TODO: 调用IPC获取订单列表
+      // const orders = await window.electronAPI.orders.getAll()
+      // set({ orders })
+      set({ orders: [] })
+    } catch (error) {
+      set({ error: String(error) })
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+  calculatePrice: async (params: { framePrice: number; lensPrice: number; discountPercent: number }) => {
+    set({ isLoading: true, error: null })
+    try {
+      // TODO: 调用IPC计算价格
+      // const calculation = await window.electronAPI.pricing.calculate(params)
+      // set({ priceCalculation: calculation })
+      const subtotal = params.framePrice + params.lensPrice
+      const discount = subtotal * (params.discountPercent / 100)
+      const total = subtotal - discount
+
+      set({
+        priceCalculation: {
+          framePrice: params.framePrice,
+          lensPrice: params.lensPrice,
+          subtotal,
+          discount,
+          total
+        }
+      })
+    } catch (error) {
+      set({ error: String(error) })
+    } finally {
+      set({ isLoading: false })
+    }
+  }
 }))

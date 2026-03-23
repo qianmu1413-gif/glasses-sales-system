@@ -215,7 +215,7 @@ const OrderManagementPage: React.FC = () => {
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {orders.map((order) => (
+              {orders.map((order: Order) => (
                 <div key={order.id} className="p-4 hover:bg-gray-50">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">

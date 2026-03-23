@@ -114,7 +114,7 @@ const FrameLibraryPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {frames.map((frame) => (
+            {frames.map((frame: Frame) => (
               <div key={frame.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
                 {/* 镜框图片 */}
                 <div className="aspect-square bg-gray-100 rounded-t-lg overflow-hidden">

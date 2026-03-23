@@ -90,7 +90,7 @@ const CustomerProfilePage: React.FC = () => {
             性格特征
           </h2>
           <div className="flex flex-wrap gap-2">
-            {currentProfile.personality.map((trait, index) => (
+            {currentProfile.personality.map((trait: string, index: number) => (
               <span
                 key={index}
                 className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
@@ -111,7 +111,7 @@ const CustomerProfilePage: React.FC = () => {
             <div>
               <div className="text-sm text-gray-600 mb-2">风格偏好</div>
               <div className="flex flex-wrap gap-2">
-                {currentProfile.preferences.style.map((style, index) => (
+                {currentProfile.preferences.style.map((style: string, index: number) => (
                   <span
                     key={index}
                     className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm"
@@ -131,7 +131,7 @@ const CustomerProfilePage: React.FC = () => {
               <div>
                 <div className="text-sm text-gray-600 mb-2">品牌偏好</div>
                 <div className="flex flex-wrap gap-2">
-                  {currentProfile.preferences.brands.map((brand, index) => (
+                  {currentProfile.preferences.brands.map((brand: string, index: number) => (
                     <span
                       key={index}
                       className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm"

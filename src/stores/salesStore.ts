@@ -7,6 +7,10 @@ interface SalesState {
   selectedCustomer: CustomerProfile | null
   setSelectedCustomer: (customer: CustomerProfile | null) => void
 
+  // 当前画像（用于页面显示）
+  currentProfile: CustomerProfile | null
+  setCurrentProfile: (profile: CustomerProfile | null) => void
+
   // 顾客画像列表
   customerProfiles: CustomerProfile[]
   setCustomerProfiles: (profiles: CustomerProfile[]) => void
@@ -30,11 +34,18 @@ interface SalesState {
   // 错误信息
   error: string | null
   setError: (error: string | null) => void
+
+  // 方法
+  analyzeCustomer: (wxid: string) => Promise<void>
+  generateScript: (wxid: string, scenario: string, context: ConversationContext | null) => Promise<void>
 }
 
 export const useSalesStore = create<SalesState>((set) => ({
   selectedCustomer: null,
   setSelectedCustomer: (customer) => set({ selectedCustomer: customer }),
+
+  currentProfile: null,
+  setCurrentProfile: (profile) => set({ currentProfile: profile }),
 
   customerProfiles: [],
   setCustomerProfiles: (profiles) => set({ customerProfiles: profiles }),
@@ -62,5 +73,53 @@ export const useSalesStore = create<SalesState>((set) => ({
   setIsGeneratingScript: (generating) => set({ isGeneratingScript: generating }),
 
   error: null,
-  setError: (error) => set({ error: error })
+  setError: (error) => set({ error: error }),
+
+  analyzeCustomer: async (wxid: string) => {
+    set({ isAnalyzing: true, error: null })
+    try {
+      // TODO: 调用IPC分析顾客
+      // const profile = await window.electronAPI.sales.analyzeCustomer(wxid)
+      // set({ currentProfile: profile })
+      const mockProfile: CustomerProfile = {
+        wxid,
+        name: '演示顾客',
+        ageRange: '26-35',
+        personality: ['理性', '注重品质'],
+        purchasePower: 'medium',
+        preferences: {
+          style: ['商务', '时尚'],
+          priceRange: [500, 2000],
+          brands: []
+        },
+        lastAnalyzedAt: new Date(),
+        confidence: 0.8
+      }
+      set({ currentProfile: mockProfile })
+    } catch (error) {
+      set({ error: String(error) })
+    } finally {
+      set({ isAnalyzing: false })
+    }
+  },
+
+  generateScript: async (wxid: string, scenario: string, context: ConversationContext | null) => {
+    set({ isGeneratingScript: true, error: null })
+    try {
+      // TODO: 调用IPC生成话术
+      // const script = await window.electronAPI.sales.generateScript(wxid, scenario, context)
+      // set({ currentScript: script })
+      const mockScript: SalesScript = {
+        content: '您好！看您的气质，应该是从事商务工作的吧？我们这边有几款非常适合商务人士的镜框，既专业又时尚。',
+        scenario: scenario as any,
+        confidence: 0.85,
+        generatedAt: new Date()
+      }
+      set({ currentScript: mockScript })
+    } catch (error) {
+      set({ error: String(error) })
+    } finally {
+      set({ isGeneratingScript: false })
+    }
+  }
 }))
