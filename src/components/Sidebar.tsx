@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { Home, MessageSquare, BarChart3, FileText, Settings, Download, Aperture, UserCircle, Lock, LockOpen, ChevronUp, RefreshCw, Glasses } from 'lucide-react'
+import { Home, MessageSquare, BarChart3, FileText, Settings, Download, Aperture, UserCircle, Lock, LockOpen, ChevronUp, RefreshCw, Glasses, PanelRightOpen } from 'lucide-react'
 import { useAppStore } from '../stores/appStore'
 import { useChatStore } from '../stores/chatStore'
 import { useAnalyticsStore } from '../stores/analyticsStore'
@@ -465,6 +465,22 @@ function Sidebar({ collapsed }: SidebarProps) {
             <span className="nav-icon"><Settings size={20} /></span>
             <span className="nav-label">销售配置</span>
           </NavLink>
+
+          {/* 吸附微信 */}
+          <button
+            className="nav-item"
+            onClick={async () => {
+              try {
+                await window.electronAPI.sidebar.open()
+              } catch (error) {
+                console.error('打开吸附窗口失败:', error)
+              }
+            }}
+            title={collapsed ? '吸附微信' : undefined}
+          >
+            <span className="nav-icon"><PanelRightOpen size={20} /></span>
+            <span className="nav-label">吸附微信</span>
+          </button>
 
           {/* 聊天分析 */}
           <NavLink
