@@ -37,10 +37,18 @@ import { getFrameLibraryService } from './services/frames/frameLibraryService'
 
 
 // 配置自动更新 - 已禁用
-autoUpdater.autoDownload = false
-autoUpdater.autoInstallOnAppQuit = false
-autoUpdater.disableDifferentialDownload = true  // 禁用差分更新，强制全量下载
 const AUTO_UPDATE_ENABLED = false  // 强制禁用自动更新
+
+// 延迟配置 autoUpdater，避免在模块加载时访问 app
+function configureAutoUpdater() {
+  try {
+    autoUpdater.autoDownload = false
+    autoUpdater.autoInstallOnAppQuit = false
+    autoUpdater.disableDifferentialDownload = true
+  } catch (error) {
+    console.warn('配置 autoUpdater 失败:', error)
+  }
+}
 
 // 使用白名单过滤 PATH，避免被第三方目录中的旧版 VC++ 运行库劫持。
 // 仅保留系统目录（Windows/System32/SysWOW64）和应用自身目录（可执行目录、resources）。
@@ -2669,6 +2677,9 @@ function checkForUpdatesOnStartup() {
 }
 
 app.whenReady().then(async () => {
+  // 配置 autoUpdater（必须在 app ready 之后）
+  configureAutoUpdater()
+
   // 立即创建 Splash 窗口，确保用户尽快看到反馈
   createSplashWindow()
 
