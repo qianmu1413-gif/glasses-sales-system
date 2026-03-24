@@ -849,8 +849,24 @@ export interface ElectronAPI {
     copyToClipboard: (text: string) => Promise<{ success: boolean; error?: string }>
     recommendFrames: (profile: any, maxResults: number) => Promise<{ success: boolean; recommendations?: any[]; error?: string }>
     calculatePrice: (framePrice: number, lensPrice: number, discountPercent: number) => Promise<{ success: boolean; calculation?: any; error?: string }>
+
+    // 顾客管理
     saveCustomerProfile: (profile: any) => Promise<{ success: boolean; error?: string }>
     getCustomerProfile: (wxid: string) => Promise<{ success: boolean; profile?: any; error?: string }>
+    getAllCustomerProfiles: () => Promise<{ success: boolean; profiles?: any[]; error?: string }>
+    searchCustomers: (keyword: string) => Promise<{ success: boolean; profiles?: any[]; error?: string }>
+    addCustomerNote: (wxid: string, content: string) => Promise<{ success: boolean; error?: string }>
+    getCustomerNotes: (wxid: string) => Promise<{ success: boolean; notes?: any[]; error?: string }>
+
+    // 订单管理
+    createOrder: (orderData: any) => Promise<{ success: boolean; orderId?: string; error?: string }>
+    getOrder: (orderId: string) => Promise<{ success: boolean; order?: any; error?: string }>
+    getAllOrders: (limit?: number, offset?: number) => Promise<{ success: boolean; orders?: any[]; error?: string }>
+    getOrdersByCustomer: (wxid: string) => Promise<{ success: boolean; orders?: any[]; error?: string }>
+    updateOrderStatus: (orderId: string, status: string) => Promise<{ success: boolean; error?: string }>
+    updateOrder: (orderId: string, updates: any) => Promise<{ success: boolean; error?: string }>
+    deleteOrder: (orderId: string) => Promise<{ success: boolean; error?: string }>
+    getOrderStats: () => Promise<{ success: boolean; stats?: any; error?: string }>
 
     // 跟进提醒
     analyzeFollowUp: (wxid: string, customerName: string, messages: any[]) => Promise<{ success: boolean; reminder?: any; error?: string }>
@@ -869,6 +885,19 @@ export interface ElectronAPI {
 
     // 报价单
     generateQuotation: (quotationData: any) => Promise<{ success: boolean; filePath?: string; quotation?: any; error?: string }>
+  }
+  frames: {
+    getAll: () => Promise<{ success: boolean; frames?: any[]; error?: string }>
+    getById: (id: string) => Promise<{ success: boolean; frame?: any; error?: string }>
+    search: (query: string) => Promise<{ success: boolean; frames?: any[]; error?: string }>
+    filter: (filter: any) => Promise<{ success: boolean; frames?: any[]; error?: string }>
+    add: (frame: any) => Promise<{ success: boolean; error?: string }>
+    update: (id: string, updates: any) => Promise<{ success: boolean; error?: string }>
+    delete: (id: string) => Promise<{ success: boolean; error?: string }>
+    getBrands: () => Promise<{ success: boolean; brands?: string[]; error?: string }>
+    getStyles: () => Promise<{ success: boolean; styles?: string[]; error?: string }>
+    getPriceRange: () => Promise<{ success: boolean; priceRange?: [number, number]; error?: string }>
+    getStockStats: () => Promise<{ success: boolean; stats?: any; error?: string }>
   }
   sidebar: {
     open: () => Promise<{ success: boolean; error?: string }>

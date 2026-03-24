@@ -33,6 +33,7 @@ import { httpService } from './services/httpService'
 import { messagePushService } from './services/messagePushService'
 import { registerSalesIPC } from './services/salesIPC'
 import { createWeChatSidebarWindow, closeSidebarWindow } from './windows/wechatSidebarWindow'
+import { getFrameLibraryService } from './services/frames/frameLibraryService'
 
 
 // 配置自动更新 - 已禁用
@@ -2721,6 +2722,20 @@ app.whenReady().then(async () => {
   updateSplashProgress(25, '正在初始化...')
   registerIpcHandlers()
   registerSalesIPC()  // 注册眼镜销售系统IPC通道
+
+  // 初始化镜框库服务
+  try {
+    const frameLibrary = getFrameLibraryService()
+    // 开发环境使用项目目录，生产环境使用userData
+    const framesPath = process.env.VITE_DEV_SERVER_URL
+      ? join(__dirname, '../../userData/frames')
+      : join(app.getPath('userData'), 'frames')
+    await frameLibrary.initialize(framesPath)
+    console.log('镜框库服务初始化成功，路径:', framesPath)
+  } catch (error) {
+    console.error('镜框库服务初始化失败:', error)
+  }
+
   chatService.addDbMonitorListener((type, json) => {
     messagePushService.handleDbMonitorChange(type, json)
   })

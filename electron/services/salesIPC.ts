@@ -8,6 +8,10 @@ import { getClipboardService } from './sales/clipboardService'
 import { getFollowUpService } from './sales/followUpService'
 import { getScriptTemplateService } from './sales/scriptTemplateService'
 import { getQuotationService } from './sales/quotationService'
+import { getCustomerDatabaseService } from './database/customerDatabaseService'
+import { getOrderService } from './database/orderService'
+import { getFrameLibraryService } from './frames/frameLibraryService'
+import { getFrameRecommendationService } from './frames/frameRecommendationService'
 import { shell } from 'electron'
 
 export function registerSalesIPC() {
@@ -59,12 +63,9 @@ export function registerSalesIPC() {
   // 镜框推荐
   ipcMain.handle('sales:recommend-frames', async (_event, profile: any, maxResults: number) => {
     try {
-      const mockFrames = [
-        { id: '1', name: '商务经典款', price: 1200, style: ['商务'], score: 0.9, reasons: ['适合商务场合', '经典设计'] },
-        { id: '2', name: '时尚潮流款', price: 800, style: ['时尚'], score: 0.85, reasons: ['时尚设计', '价格适中'] },
-        { id: '3', name: '运动休闲款', price: 600, style: ['运动'], score: 0.8, reasons: ['轻便舒适', '运动风格'] }
-      ]
-      return { success: true, recommendations: mockFrames.slice(0, maxResults) }
+      const recommendationService = getFrameRecommendationService()
+      const recommendations = recommendationService.recommendFrames(profile, maxResults || 5)
+      return { success: true, recommendations }
     } catch (error: any) {
       return { success: false, error: error.message }
     }
@@ -98,7 +99,9 @@ export function registerSalesIPC() {
   // 保存顾客画像
   ipcMain.handle('sales:save-customer-profile', async (_event, profile: any) => {
     try {
-      return { success: true }
+      const dbService = getCustomerDatabaseService()
+      const success = dbService.saveProfile(profile)
+      return { success }
     } catch (error: any) {
       return { success: false, error: error.message }
     }
@@ -107,7 +110,53 @@ export function registerSalesIPC() {
   // 获取顾客画像
   ipcMain.handle('sales:get-customer-profile', async (_event, wxid: string) => {
     try {
-      return { success: true, profile: null }
+      const dbService = getCustomerDatabaseService()
+      const profile = dbService.getProfile(wxid)
+      return { success: true, profile }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // 获取所有顾客画像
+  ipcMain.handle('sales:get-all-customer-profiles', async () => {
+    try {
+      const dbService = getCustomerDatabaseService()
+      const profiles = dbService.getAllProfiles()
+      return { success: true, profiles }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // 搜索顾客
+  ipcMain.handle('sales:search-customers', async (_event, keyword: string) => {
+    try {
+      const dbService = getCustomerDatabaseService()
+      const profiles = dbService.searchProfiles(keyword)
+      return { success: true, profiles }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // 添加顾客备注
+  ipcMain.handle('sales:add-customer-note', async (_event, wxid: string, content: string) => {
+    try {
+      const dbService = getCustomerDatabaseService()
+      const success = dbService.addNote(wxid, content)
+      return { success }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // 获取顾客备注
+  ipcMain.handle('sales:get-customer-notes', async (_event, wxid: string) => {
+    try {
+      const dbService = getCustomerDatabaseService()
+      const notes = dbService.getNotes(wxid)
+      return { success: true, notes }
     } catch (error: any) {
       return { success: false, error: error.message }
     }
@@ -240,6 +289,198 @@ export function registerSalesIPC() {
       await shell.openPath(filePath)
 
       return { success: true, filePath, quotation }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // ===== 订单管理功能 =====
+  ipcMain.handle('sales:create-order', async (_event, orderData: any) => {
+    try {
+      const orderService = getOrderService()
+      const orderId = orderService.createOrder(orderData)
+      return { success: true, orderId }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:get-order', async (_event, orderId: string) => {
+    try {
+      const orderService = getOrderService()
+      const order = orderService.getOrder(orderId)
+      return { success: true, order }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:get-all-orders', async (_event, limit?: number, offset?: number) => {
+    try {
+      const orderService = getOrderService()
+      const orders = orderService.getAllOrders(limit, offset)
+      return { success: true, orders }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:get-orders-by-customer', async (_event, wxid: string) => {
+    try {
+      const orderService = getOrderService()
+      const orders = orderService.getOrdersByCustomer(wxid)
+      return { success: true, orders }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:update-order-status', async (_event, orderId: string, status: string) => {
+    try {
+      const orderService = getOrderService()
+      const success = orderService.updateOrderStatus(orderId, status)
+      return { success }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:update-order', async (_event, orderId: string, updates: any) => {
+    try {
+      const orderService = getOrderService()
+      const success = orderService.updateOrder(orderId, updates)
+      return { success }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:delete-order', async (_event, orderId: string) => {
+    try {
+      const orderService = getOrderService()
+      const success = orderService.deleteOrder(orderId)
+      return { success }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('sales:get-order-stats', async () => {
+    try {
+      const orderService = getOrderService()
+      const stats = orderService.getOrderStats()
+      return { success: true, stats }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // ===== 镜框库管理功能 =====
+  ipcMain.handle('frames:get-all', async () => {
+    try {
+      const frameLibrary = getFrameLibraryService()
+      const frames = frameLibrary.getAllFrames()
+      return { success: true, frames }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('frames:get-by-id', async (_event, id: string) => {
+    try {
+      const frameLibrary = getFrameLibraryService()
+      const frame = frameLibrary.getFrameById(id)
+      return { success: true, frame }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('frames:search', async (_event, query: string) => {
+    try {
+      const frameLibrary = getFrameLibraryService()
+      const frames = frameLibrary.searchFrames(query)
+      return { success: true, frames }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('frames:filter', async (_event, filter: any) => {
+    try {
+      const frameLibrary = getFrameLibraryService()
+      const frames = frameLibrary.filterFrames(filter)
+      return { success: true, frames }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('frames:add', async (_event, frame: any) => {
+    try {
+      const frameLibrary = getFrameLibraryService()
+      await frameLibrary.addFrame(frame)
+      return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('frames:update', async (_event, id: string, updates: any) => {
+    try {
+      const frameLibrary = getFrameLibraryService()
+      await frameLibrary.updateFrame(id, updates)
+      return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('frames:delete', async (_event, id: string) => {
+    try {
+      const frameLibrary = getFrameLibraryService()
+      await frameLibrary.deleteFrame(id)
+      return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('frames:get-brands', async () => {
+    try {
+      const frameLibrary = getFrameLibraryService()
+      const brands = frameLibrary.getAllBrands()
+      return { success: true, brands }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('frames:get-styles', async () => {
+    try {
+      const frameLibrary = getFrameLibraryService()
+      const styles = frameLibrary.getAllStyles()
+      return { success: true, styles }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('frames:get-price-range', async () => {
+    try {
+      const frameLibrary = getFrameLibraryService()
+      const priceRange = frameLibrary.getPriceRange()
+      return { success: true, priceRange }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('frames:get-stock-stats', async () => {
+    try {
+      const frameLibrary = getFrameLibraryService()
+      const stats = frameLibrary.getStockStats()
+      return { success: true, stats }
     } catch (error: any) {
       return { success: false, error: error.message }
     }

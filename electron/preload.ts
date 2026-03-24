@@ -435,8 +435,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
     copyToClipboard: (text: string) => ipcRenderer.invoke('sales:copy-to-clipboard', text),
     recommendFrames: (profile: any, maxResults: number) => ipcRenderer.invoke('sales:recommend-frames', profile, maxResults),
     calculatePrice: (framePrice: number, lensPrice: number, discountPercent: number) => ipcRenderer.invoke('sales:calculate-price', framePrice, lensPrice, discountPercent),
+
+    // 顾客管理
     saveCustomerProfile: (profile: any) => ipcRenderer.invoke('sales:save-customer-profile', profile),
     getCustomerProfile: (wxid: string) => ipcRenderer.invoke('sales:get-customer-profile', wxid),
+    getAllCustomerProfiles: () => ipcRenderer.invoke('sales:get-all-customer-profiles'),
+    searchCustomers: (keyword: string) => ipcRenderer.invoke('sales:search-customers', keyword),
+    addCustomerNote: (wxid: string, content: string) => ipcRenderer.invoke('sales:add-customer-note', wxid, content),
+    getCustomerNotes: (wxid: string) => ipcRenderer.invoke('sales:get-customer-notes', wxid),
+
+    // 订单管理
+    createOrder: (orderData: any) => ipcRenderer.invoke('sales:create-order', orderData),
+    getOrder: (orderId: string) => ipcRenderer.invoke('sales:get-order', orderId),
+    getAllOrders: (limit?: number, offset?: number) => ipcRenderer.invoke('sales:get-all-orders', limit, offset),
+    getOrdersByCustomer: (wxid: string) => ipcRenderer.invoke('sales:get-orders-by-customer', wxid),
+    updateOrderStatus: (orderId: string, status: string) => ipcRenderer.invoke('sales:update-order-status', orderId, status),
+    updateOrder: (orderId: string, updates: any) => ipcRenderer.invoke('sales:update-order', orderId, updates),
+    deleteOrder: (orderId: string) => ipcRenderer.invoke('sales:delete-order', orderId),
+    getOrderStats: () => ipcRenderer.invoke('sales:get-order-stats'),
 
     // 跟进提醒
     analyzeFollowUp: (wxid: string, customerName: string, messages: any[]) => ipcRenderer.invoke('sales:analyze-follow-up', wxid, customerName, messages),
@@ -455,6 +471,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     // 报价单
     generateQuotation: (quotationData: any) => ipcRenderer.invoke('sales:generate-quotation', quotationData)
+  },
+
+  // 镜框库管理
+  frames: {
+    getAll: () => ipcRenderer.invoke('frames:get-all'),
+    getById: (id: string) => ipcRenderer.invoke('frames:get-by-id', id),
+    search: (query: string) => ipcRenderer.invoke('frames:search', query),
+    filter: (filter: any) => ipcRenderer.invoke('frames:filter', filter),
+    add: (frame: any) => ipcRenderer.invoke('frames:add', frame),
+    update: (id: string, updates: any) => ipcRenderer.invoke('frames:update', id, updates),
+    delete: (id: string) => ipcRenderer.invoke('frames:delete', id),
+    getBrands: () => ipcRenderer.invoke('frames:get-brands'),
+    getStyles: () => ipcRenderer.invoke('frames:get-styles'),
+    getPriceRange: () => ipcRenderer.invoke('frames:get-price-range'),
+    getStockStats: () => ipcRenderer.invoke('frames:get-stock-stats')
   },
 
   // 微信吸附侧边栏
