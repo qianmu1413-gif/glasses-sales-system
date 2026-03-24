@@ -3,7 +3,6 @@ import { app, BrowserWindow, ipcMain, nativeTheme, session, Tray, Menu, nativeIm
 import { Worker } from 'worker_threads'
 import { randomUUID } from 'crypto'
 import { join, dirname } from 'path'
-import { autoUpdater } from 'electron-updater'
 import { readFile, writeFile, mkdir, rm, readdir } from 'fs/promises'
 import { existsSync } from 'fs'
 import { ConfigService } from './services/config'
@@ -42,6 +41,7 @@ const AUTO_UPDATE_ENABLED = false  // 强制禁用自动更新
 // 延迟配置 autoUpdater，避免在模块加载时访问 app
 function configureAutoUpdater() {
   try {
+    const { autoUpdater } = require('electron-updater')
     autoUpdater.autoDownload = false
     autoUpdater.autoInstallOnAppQuit = false
     autoUpdater.disableDifferentialDownload = true
@@ -1186,6 +1186,7 @@ function registerIpcHandlers() {
       return { hasUpdate: false }
     }
     try {
+      const { autoUpdater } = require('electron-updater')
       const result = await autoUpdater.checkForUpdates()
       if (result && result.updateInfo) {
         const currentVersion = app.getVersion()
@@ -1215,6 +1216,7 @@ function registerIpcHandlers() {
       throw new Error('更新正在下载中，请稍候')
     }
 
+    const { autoUpdater } = require('electron-updater')
     isDownloadInProgress = true
     const win = BrowserWindow.fromWebContents(event.sender)
 
@@ -2649,6 +2651,7 @@ function checkForUpdatesOnStartup() {
   // 延迟3秒检测，等待窗口完全加载
   setTimeout(async () => {
     try {
+      const { autoUpdater } = require('electron-updater')
       const result = await autoUpdater.checkForUpdates()
       if (result && result.updateInfo) {
         const currentVersion = app.getVersion()
