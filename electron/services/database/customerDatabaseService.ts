@@ -1,6 +1,5 @@
 // 顾客数据库服务
 import Database from 'better-sqlite3'
-import { app } from 'electron'
 import { join } from 'path'
 import { existsSync, mkdirSync } from 'fs'
 
@@ -37,6 +36,8 @@ class CustomerDatabaseService {
     if (this.initialized) return
 
     try {
+      // 动态导入 app，避免模块加载时的循环依赖问题
+      const { app } = require('electron')
       const userDataPath = app.getPath('userData')
       const dbDir = join(userDataPath, 'sales-data')
       
