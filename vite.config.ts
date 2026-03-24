@@ -33,6 +33,8 @@ export default defineConfig({
             outDir: 'dist-electron',
             rollupOptions: {
               external: [
+                'electron',
+                'electron-updater',
                 'better-sqlite3',
                 'koffi',
                 'fsevents',
