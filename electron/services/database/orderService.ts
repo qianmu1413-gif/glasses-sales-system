@@ -23,12 +23,16 @@ interface Order {
 
 class OrderService {
   private db: Database.Database | null = null
+  private initialized: boolean = false
 
+  // 延迟初始化，不在构造函数中调用
   constructor() {
-    this.initDatabase()
+    // 不在这里初始化，等待 app ready
   }
 
   private initDatabase(): void {
+    if (this.initialized) return
+
     try {
       const userDataPath = app.getPath('userData')
       const dbDir = join(userDataPath, 'sales-data')
@@ -68,6 +72,7 @@ class OrderService {
       `)
 
       console.log('订单数据库初始化成功')
+      this.initialized = true
     } catch (error) {
       console.error('初始化订单数据库失败:', error)
     }
@@ -75,6 +80,7 @@ class OrderService {
 
   // 创建订单
   createOrder(order: any): string {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) throw new Error('数据库未初始化')
 
     const orderId = `ORD_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -113,6 +119,7 @@ class OrderService {
 
   // 获取订单
   getOrder(orderId: string): any | null {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return null
 
     try {
@@ -145,6 +152,7 @@ class OrderService {
 
   // 获取所有订单
   getAllOrders(limit: number = 100, offset: number = 0): any[] {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return []
 
     try {
@@ -179,6 +187,7 @@ class OrderService {
 
   // 按顾客获取订单
   getOrdersByCustomer(wxid: string): any[] {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return []
 
     try {
@@ -213,6 +222,7 @@ class OrderService {
 
   // 更新订单状态
   updateOrderStatus(orderId: string, status: string): boolean {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return false
 
     try {
@@ -232,6 +242,7 @@ class OrderService {
 
   // 更新订单
   updateOrder(orderId: string, updates: any): boolean {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return false
 
     try {
@@ -292,6 +303,7 @@ class OrderService {
 
   // 删除订单
   deleteOrder(orderId: string): boolean {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return false
 
     try {
@@ -306,6 +318,7 @@ class OrderService {
 
   // 获取订单统计
   getOrderStats(): any {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return null
 
     try {

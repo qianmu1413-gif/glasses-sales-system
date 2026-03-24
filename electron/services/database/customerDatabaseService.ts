@@ -26,12 +26,16 @@ interface CustomerNote {
 
 class CustomerDatabaseService {
   private db: Database.Database | null = null
+  private initialized: boolean = false
 
+  // 延迟初始化，不在构造函数中调用
   constructor() {
-    this.initDatabase()
+    // 不在这里初始化，等待 app ready
   }
 
   private initDatabase(): void {
+    if (this.initialized) return
+
     try {
       const userDataPath = app.getPath('userData')
       const dbDir = join(userDataPath, 'sales-data')
@@ -77,6 +81,7 @@ class CustomerDatabaseService {
       `)
 
       console.log('顾客数据库初始化成功')
+      this.initialized = true
     } catch (error) {
       console.error('初始化数据库失败:', error)
     }
@@ -84,6 +89,7 @@ class CustomerDatabaseService {
 
   // 保存或更新顾客画像
   saveProfile(profile: any): boolean {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return false
 
     try {
@@ -115,6 +121,7 @@ class CustomerDatabaseService {
 
   // 获取顾客画像
   getProfile(wxid: string): any | null {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return null
 
     try {
@@ -143,6 +150,7 @@ class CustomerDatabaseService {
 
   // 获取所有顾客画像
   getAllProfiles(): any[] {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return []
 
     try {
@@ -169,6 +177,7 @@ class CustomerDatabaseService {
 
   // 搜索顾客
   searchProfiles(keyword: string): any[] {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return []
 
     try {
@@ -199,6 +208,7 @@ class CustomerDatabaseService {
 
   // 添加顾客备注
   addNote(wxid: string, content: string): boolean {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return false
 
     try {
@@ -217,6 +227,7 @@ class CustomerDatabaseService {
 
   // 获取顾客备注
   getNotes(wxid: string): any[] {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return []
 
     try {
@@ -241,6 +252,7 @@ class CustomerDatabaseService {
 
   // 删除顾客
   deleteProfile(wxid: string): boolean {
+    this.initDatabase() // 确保数据库已初始化
     if (!this.db) return false
 
     try {
