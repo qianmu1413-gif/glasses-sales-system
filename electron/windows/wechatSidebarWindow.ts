@@ -117,10 +117,21 @@ export function createWeChatSidebarWindow(): BrowserWindow {
   if (process.env.VITE_DEV_SERVER_URL) {
     sidebarWindow.loadURL(`${process.env.VITE_DEV_SERVER_URL}#/wechat-sidebar`)
   } else {
-    sidebarWindow.loadFile(join(__dirname, '../renderer/index.html'), {
+    // 生产环境：使用正确的路径
+    const indexPath = join(__dirname, '../dist/index.html')
+    sidebarWindow.loadFile(indexPath, {
       hash: '/wechat-sidebar'
     })
   }
+
+  // 添加页面加载错误处理
+  sidebarWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('吸附窗口加载失败:', errorCode, errorDescription)
+  })
+
+  sidebarWindow.webContents.on('did-finish-load', () => {
+    console.log('吸附窗口加载成功')
+  })
 
   // 启动自动跟随微信窗口的定时器
   startAutoFollow()
@@ -131,10 +142,8 @@ export function createWeChatSidebarWindow(): BrowserWindow {
     sidebarWindow = null
   })
 
-  // 开发环境打开开发者工具
-  if (process.env.VITE_DEV_SERVER_URL) {
-    sidebarWindow.webContents.openDevTools({ mode: 'detach' })
-  }
+  // 始终打开开发者工具以便调试
+  sidebarWindow.webContents.openDevTools({ mode: 'detach' })
 
   return sidebarWindow
 }
